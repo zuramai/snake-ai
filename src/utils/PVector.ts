@@ -1,4 +1,4 @@
-class PVector {
+export default class PVector {
     x: number 
     y: number 
     

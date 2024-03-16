@@ -1,17 +1,19 @@
-export type Grid<T> = T[][]; 
+import { randomGaussian, randomNumberBetween } from ".";
 
-export default class Matrix<T> {
+export type Grid = number[][]; 
+
+export default class Matrix {
     rows: number 
     cols: number
-    matrix: Grid<T>
+    matrix: Grid
 
-    constructor(row: number, col: number, matrix?: Grid<T>) {
+    constructor(row: number, col: number, matrix?: Grid) {
         this.rows = row 
         this.cols = col
         this.matrix = matrix ? matrix : new Array(row).fill(new Array(col))
     }
 
-    static fromGrid<T>(matrix: Grid<T>) {
+    static fromGrid(matrix: Grid) {
         return new Matrix(matrix.length, matrix[0].length, matrix);
     }
 
@@ -25,8 +27,8 @@ export default class Matrix<T> {
         console.log("\n")
     }
 
-    dot(m: Matrix<T>): Matrix<number> {
-        const newMatrix = new Matrix<number>(this.rows, m.cols)
+    dot(m: Matrix): Matrix {
+        const newMatrix = new Matrix(this.rows, m.cols)
 
         for(let i = 0; i < this.rows; i++) {
             for(let j = 0; j < this.cols; j++) {
@@ -45,7 +47,7 @@ export default class Matrix<T> {
     randomize() {
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.rows; j++) {
-                (this.matrix as Grid<number>)[i][j] = Math.random() * 2 - 1
+                (this.matrix as Grid)[i][j] = Math.random() * 2 - 1
             }
         }
     }
@@ -60,8 +62,8 @@ export default class Matrix<T> {
         return m 
     }
 
-    toArray(): T[] {
-        let arr: T[] = []
+    toArray() {
+        let arr = []
 
         for(let i = 0; i < this.rows; i++) {
             for(let j = 0; j < this.cols; j++) {
@@ -72,13 +74,13 @@ export default class Matrix<T> {
         return arr 
     }
 
-    addBias() {
+    addBias(): Matrix {
         const m = new Matrix(this.rows + 1, 1)
         for(let i = 0; i < this.rows; i++) {
             m.matrix[i][0] = this.matrix[i][0]
         }
         m.matrix[this.rows][0] = 1  
-        return m
+        return m as Matrix
     }
 
     activate() {
@@ -101,10 +103,65 @@ export default class Matrix<T> {
         const m = new Matrix(this.rows, this.cols)
 
         for(let i = 0; i < this.rows; i++) {
-            for(let j = 0; j < this.rows; j++) {
+            for(let j = 0; j < this.cols; j++) {
                 m.matrix[i][j] = this.matrix[i][j]
             }
         }
         return m
     }
+
+    // void mutate(float mutationRate) {
+    //     for(int i = 0; i < rows; i++) {
+    //        for(int j = 0; j < cols; j++) {
+    //           float rand = random(1);
+    //           if(rand<mutationRate) {
+    //              matrix[i][j] += randomGaussian()/5;
+                 
+    //              if(matrix[i][j] > 1) {
+    //                 matrix[i][j] = 1;
+    //              }
+    //              if(matrix[i][j] <-1) {
+    //                matrix[i][j] = -1;
+    //              }
+    //           }
+    //        }
+    //     }
+    // }
+     
+    mutate(mutationRate: number) {
+        for(let i = 0; i < this.rows; i++) {
+            for(let j = 0; j < this.cols; j++) {
+                const rand = randomNumberBetween(0, 1)
+                if(rand < mutationRate) {
+                    (this.matrix[i][j] as number) += randomGaussian(0,0)/5
+
+                    if ((this.matrix[i][j] as number) > 1) {
+                        (this.matrix[i][j] as number) = 1
+                    }
+                    if ((this.matrix[i][j] as number) < -1) {
+                        (this.matrix[i][j] as number) = -1
+                    }
+                }
+            }
+        } 
+    }
+
+    crossover(partner: Matrix) {
+        const child = new Matrix(this.rows,this.cols)
+
+        const randC = Math.floor(randomNumberBetween(0, this.cols))
+        const randR = Math.floor(randomNumberBetween(0, this.rows))
+
+        for(let i = 0; i < this.rows; i++) {
+            for(let j = 0; j < this.cols; j++) {
+                if((i < randR) || (i == randR && j <= randC)) {
+                    child.matrix[i][j] = this.matrix[i][j] as number
+                } else {
+                    child.matrix[i][j] = partner.matrix[i][j]
+                }
+            }
+        }
+        return child
+    }
+
 }

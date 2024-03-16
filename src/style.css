@@ -29,3 +29,7 @@ body {
 .text-center {
   text-align: center;
 }
+.canvas-wrapper {
+  display: flex;
+  justify-content: center;
+}
