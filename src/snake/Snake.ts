@@ -110,6 +110,12 @@ export default class Snake {
         if(this.foodCollide(this.head.x, this.head.y)) {
             this.eat()
         }
+        this.shiftBody()
+        if(this.wallCollide(this.head.x, this.head.y) || 
+            this.bodyCollide(this.head.x, this.head.y) || 
+            this.life <= 0) {
+            this.dead = true
+        } 
     }
 
     eat() {
@@ -286,12 +292,12 @@ export default class Snake {
         }
     }
     clone() {
-        const clone = new Snake(2)
+        const clone = new Snake(globalThis.hiddenLayers)
         clone.brain = this.brain.clone()
         return clone
     }
     cloneForReplay() {
-        const clone = new Snake(2)
+        const clone = new Snake(globalThis.hiddenLayers)
         clone.brain = this.brain.clone()
         return clone
     }

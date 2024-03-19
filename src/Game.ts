@@ -8,7 +8,7 @@ const hiddenLayers = 2
 const fps = 50
 
 const highscore = 0
-
+globalThis.hiddenLayers = hiddenLayers
 let defaultMutation = globalThis.mutationRate
 
 const humanPlaying = false
@@ -74,10 +74,13 @@ export default class Game {
             this.bestSnake.think()
             this.bestSnake.move()
         }
+        console.log(this.bestSnake)
         this.snakes.forEach(snake => {
-            snake.look()
-            snake.think()
-            snake.move()
+            if(!snake.dead) {
+                snake.look()
+                snake.think()
+                snake.move()
+            }
         })
     }
 
@@ -121,6 +124,7 @@ export default class Game {
     }
 
     drawGraph() {
+        this.ctxG.clearRect(0,0,this.graphCanvas.width, this.graphCanvas.height)
         this.ctxG.textBaseline = "top"
         this.ctxG.fillStyle = "white"
         this.ctxG.font = "32px Arial"
@@ -136,12 +140,13 @@ export default class Game {
         this.calculteFitnessSum()
         // add the best snake of the prior generation
         newSnakes[0] = this.bestSnake.clone() 
-        this.snakes.forEach(snake => {
+
+        for(let i = 1; i < this.snakes.length; i++) {
             const child = this.selectParent().crossover(this.selectParent())
             child.mutate()
-            newSnakes.push(child)
-        })
-        this.snakes = JSON.parse(JSON.stringify(newSnakes))
+            newSnakes[i] = child.clone()
+        }
+        this.snakes = newSnakes
         evolution.push(this.bestSnakeScore)
         this.gen++
     }
