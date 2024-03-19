@@ -1,4 +1,6 @@
 import Snake from "./snake/Snake";
+import { randomNumberBetween } from "./utils";
+import { createElement } from "./utils/dom";
 
 const blockSize = 30
 const hiddenNodes = 16
@@ -7,8 +9,7 @@ const fps = 50
 
 const highscore = 0
 
-const mutationRate = 0.5
-let defaultMutation = mutationRate
+let defaultMutation = globalThis.mutationRate
 
 const humanPlaying = false
 const replayBest = true 
@@ -21,18 +22,32 @@ export default class Game {
     snakes: Snake[] = []
     bestSnake: Snake
     canvas: HTMLCanvasElement
+    graphCanvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
+    ctxG: CanvasRenderingContext2D
+    fitnessSum = 0
+    bestSnakeScore = 0
+    bestFitness = 0
+    samebest = 0
+    gen = 0
 
-    constructor(size: number, canvas: HTMLCanvasElement) {
+    constructor(size: number, el: HTMLElement) {
+        // Create canvas element
+        this.graphCanvas = createElement('canvas', { width: '720', height: '1000' }) as HTMLCanvasElement
+        this.canvas = createElement('canvas', { width: '720', height: '720' }) as HTMLCanvasElement
+
+        el.append(this.graphCanvas, this.canvas)
+
         for (let i = 0; i < size; i++) {
             this.snakes.push(new Snake(hiddenLayers, {
                 size: blockSize,
-                canvas,
+                canvas: this.canvas,
                 nn: {
                     hiddenNodes
                 },
                 snake: {
-                    color: '#8183fc'
+                    color: '#8183fc',
+                    seeVision: false
                 }
             }))
         }
@@ -40,8 +55,8 @@ export default class Game {
         console.log(this.snakes)
         this.bestSnake.replay = true
 
-        this.canvas = canvas 
-        this.ctx = canvas.getContext('2d')!
+        this.ctx = this.canvas.getContext('2d')!
+        this.ctxG = this.graphCanvas.getContext('2d')!
     }
 
     isDone() {
@@ -85,6 +100,7 @@ export default class Game {
 
         if(replayBest) {
             this.bestSnake.draw(this.ctx)
+            this.bestSnake.brain.draw(this.ctxG, this.bestSnake.decision)
         } else {
             this.snakes.forEach(snake => {
                 snake.draw(this.ctx)
@@ -93,8 +109,99 @@ export default class Game {
     }
 
     render() {
-        this.draw()
-        this.update()
+        this.drawGraph()
+        if(this.isDone()) {
+            this.calculateFitness()
+            this.naturalSelection()
+        }else{
+            this.draw()
+            this.update()
+        }
         requestAnimationFrame(() => this.render())
     }
+
+    drawGraph() {
+        this.ctxG.textBaseline = "top"
+        this.ctxG.fillStyle = "white"
+        this.ctxG.font = "32px Arial"
+        this.ctxG.fillText("Gen: "+ this.gen, 0, 0)
+        this.ctxG.fillText("Mutation Rate: "+ globalThis.mutationRate + '%', 0, 50)
+        this.ctxG.fillText("Score: "+ highscore + '%', 400, 0)
+        this.ctxG.fillText("High Score: "+ this.bestSnake.score + '%', 400, 50)
+    }
+
+    naturalSelection() {
+        const newSnakes = []
+        this.setBestSnake()
+        this.calculteFitnessSum()
+        // add the best snake of the prior generation
+        newSnakes[0] = this.bestSnake.clone() 
+        this.snakes.forEach(snake => {
+            const child = this.selectParent().crossover(this.selectParent())
+            child.mutate()
+            newSnakes.push(child)
+        })
+        this.snakes = JSON.parse(JSON.stringify(newSnakes))
+        evolution.push(this.bestSnakeScore)
+        this.gen++
+    }
+
+    selectParent() {
+        let rand = randomNumberBetween(0, this.fitnessSum);
+        let summation = 0;
+        for(let i = 0; i < this.snakes.length; i++) {
+            summation += this.snakes[i].fitness;
+            if(summation > rand) {
+                return this.snakes[i];
+            }
+        }
+        return this.snakes[0];
+    }
+
+    mutate() {
+        this.snakes.forEach(snake => snake.mutate())
+    }
+
+    calculateFitness() {
+        this.snakes.forEach(snake => snake.calculateFitness())
+    }
+
+    calculteFitnessSum() {
+        this.fitnessSum = 0
+        this.snakes.forEach(snake => this.fitnessSum += snake.fitness)
+    }
+
+    setBestSnake() {
+        let max = 0
+        let maxIndex = 0
+        this.snakes.forEach((snake, i) => {
+            if(snake.fitness > max) {
+                max = snake.fitness 
+                maxIndex = i
+            }
+        })
+
+        if(max > this.bestFitness) {
+            this.bestFitness = max
+            this.bestSnake = this.snakes[maxIndex].cloneForReplay()
+            this.bestSnakeScore = this.snakes[maxIndex].score 
+        } else {
+            this.bestSnake = this.bestSnake.cloneForReplay()
+            this.samebest++
+            if(this.samebest > 2) {
+                mutationRate *= 2
+                this.samebest = 0
+            }
+        }
+
+    }
+
+    calculateFitnessSum() {
+        this.fitnessSum = 0
+        this.snakes.forEach(snake => {
+            this.fitnessSum += snake.fitness
+        })
+    }
+
+    
 }

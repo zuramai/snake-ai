@@ -13,7 +13,6 @@ export class Food {
     constructor(size: number, options?: FoodOptions) {
         const x = size * Math.floor(randomNumberBetween(0, 10))
         const y = size * Math.floor(randomNumberBetween(0, 10))
-        console.log(x,y)
         this.size = size 
         this.pos = new PVector(x,y)
         this.options = options || {

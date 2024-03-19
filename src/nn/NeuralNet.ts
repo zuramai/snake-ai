@@ -50,6 +50,52 @@ export default class NeuralNet {
         return output.toArray()
     }
 
+    draw(ctx: CanvasRenderingContext2D, decision: number[]) {
+        const arcSize = 15
+        const marginY = 25
+        // Draw input layer nodes
+        for (let i = 0; i < this.iNodes; i++) {
+            ctx.beginPath();
+            ctx.arc(arcSize, (arcSize) * i + (marginY * i) + 100, arcSize, 0, Math.PI * 2)
+            ctx.fillStyle = decision[i] != 0 ? 'green' : "white"
+            ctx.strokeStyle = decision[i] != 0 ? 'black' : "white"
+            ctx.stroke()
+            ctx.fill()
+            ctx.closePath()
+        }
+
+        // Draw hidden layers nodes
+        const gapHorizontal = 150
+        for (let i = 0; i < this.hLayers; i++) {
+            for (let j = 0; j < this.hNodes; j++) {
+                ctx.beginPath();
+                ctx.arc(gapHorizontal * (i+1), (arcSize) * j + (marginY * j) + 250, arcSize, 0, Math.PI * 2)
+                ctx.fillStyle = "white"
+                ctx.strokeStyle = "black"
+                ctx.stroke()
+                ctx.fill()
+                ctx.closePath()
+            }
+        }
+
+        // Draw output layers nodes
+        const outputLabels = ['Up', 'Down', 'Left', 'Right']
+        for (let i = 0; i < this.oNodes; i++) {
+            const x = gapHorizontal * (this.hLayers + 1)
+            const y = (arcSize) * i + (marginY * i) + 450
+            ctx.beginPath();
+            ctx.arc(x - arcSize, y + arcSize, arcSize, 0, Math.PI * 2)
+            ctx.font = "16px Arial"
+            ctx.fillText(outputLabels[i], x, y)
+            ctx.fillStyle = "white"
+            ctx.strokeStyle = "black"
+            ctx.stroke()
+            ctx.fill()
+            ctx.closePath()
+        }
+
+    }
+
     crossover(partner: NeuralNet) {
         const child = new NeuralNet(this.iNodes, this.hNodes, this.oNodes, this.hLayers)
         for (let i = 0; i < this.weights.length; i++) {
