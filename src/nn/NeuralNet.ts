@@ -35,16 +35,19 @@ export default class NeuralNet {
     }
 
     output(inputsArr: number[]) {
-        const inputs = this.weights[0].singleColumnMatrixFromArray(inputsArr) as Matrix
-        let curr_bias = inputs.addBias()
+        // Create new matrix with size [24, 1]
+        const inputs = Matrix.singleColumnMatrixFromArray(inputsArr) as Matrix
+
+        // Add the 25th row as 1
+        let currLayerWithBias = inputs.addBias()
         
         for(let i = 0; i < this.hLayers; i++) {
-            const hidden_ip = this.weights[i].dot(curr_bias) 
+            const hidden_ip = this.weights[i].dot(currLayerWithBias) 
             const hidden_op = hidden_ip.activate()
-            curr_bias = hidden_op.addBias()
+            currLayerWithBias = hidden_op.addBias()
         }
 
-        const output_ip = this.weights[this.weights.length - 1].dot(curr_bias)
+        const output_ip = this.weights[this.weights.length - 1].dot(currLayerWithBias)
         const output = output_ip.activate()
 
         return output.toArray()
@@ -53,11 +56,12 @@ export default class NeuralNet {
     draw(ctx: CanvasRenderingContext2D, decision: number[]) {
         const arcSize = 15
         const marginY = 25
+
         // Draw input layer nodes
         for (let i = 0; i < this.iNodes; i++) {
             ctx.beginPath();
             ctx.arc(arcSize, (arcSize) * i + (marginY * i) + 100, arcSize, 0, Math.PI * 2)
-            ctx.fillStyle = decision[i] != 0 ? 'green' : "white"
+            ctx.fillStyle = decision[i] > 0.0 ? 'green' : "white"
             ctx.strokeStyle = decision[i] != 0 ? 'black' : "white"
             ctx.stroke()
             ctx.fill()

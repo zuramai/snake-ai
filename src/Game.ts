@@ -74,7 +74,6 @@ export default class Game {
             this.bestSnake.think()
             this.bestSnake.move()
         }
-        console.log(this.bestSnake)
         this.snakes.forEach(snake => {
             if(!snake.dead) {
                 snake.look()
@@ -114,6 +113,7 @@ export default class Game {
     render() {
         this.drawGraph()
         if(this.isDone()) {
+            console.log('done')
             this.calculateFitness()
             this.naturalSelection()
         }else{
@@ -130,25 +130,8 @@ export default class Game {
         this.ctxG.font = "32px Arial"
         this.ctxG.fillText("Gen: "+ this.gen, 0, 0)
         this.ctxG.fillText("Mutation Rate: "+ globalThis.mutationRate + '%', 0, 50)
-        this.ctxG.fillText("Score: "+ highscore + '%', 400, 0)
-        this.ctxG.fillText("High Score: "+ this.bestSnake.score + '%', 400, 50)
-    }
-
-    naturalSelection() {
-        const newSnakes = []
-        this.setBestSnake()
-        this.calculteFitnessSum()
-        // add the best snake of the prior generation
-        newSnakes[0] = this.bestSnake.clone() 
-
-        for(let i = 1; i < this.snakes.length; i++) {
-            const child = this.selectParent().crossover(this.selectParent())
-            child.mutate()
-            newSnakes[i] = child.clone()
-        }
-        this.snakes = newSnakes
-        evolution.push(this.bestSnakeScore)
-        this.gen++
+        this.ctxG.fillText("Score: "+ this.bestSnake.score, 400, 50)
+        this.ctxG.fillText("High Score: "+ highscore, 400, 0)
     }
 
     selectParent() {
@@ -176,7 +159,25 @@ export default class Game {
         this.snakes.forEach(snake => this.fitnessSum += snake.fitness)
     }
 
+
+    naturalSelection() {
+        const newSnakes = []
+        this.setBestSnake()
+        this.calculteFitnessSum()
+        // add the best snake of the prior generation
+        newSnakes[0] = this.bestSnake.clone() 
+
+        for(let i = 1; i < this.snakes.length; i++) {
+            const child = this.selectParent().crossover(this.selectParent())
+            child.mutate()
+            newSnakes[i] = child.clone()
+        }
+        this.snakes = newSnakes
+        evolution.push(this.bestSnakeScore)
+        this.gen++
+    }
     setBestSnake() {
+        console.log('set best snake')
         let max = 0
         let maxIndex = 0
         this.snakes.forEach((snake, i) => {

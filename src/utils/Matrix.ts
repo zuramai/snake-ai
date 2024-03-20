@@ -10,7 +10,9 @@ export default class Matrix {
     constructor(row: number, col: number, matrix?: Grid) {
         this.rows = row 
         this.cols = col
-        this.matrix = matrix ? matrix : new Array(row).fill(new Array(col))
+        this.matrix = matrix ? matrix : (() => {
+            return new Array(row).fill(undefined).map(() => new Array(col))
+        })()
     }
 
     static fromGrid(matrix: Grid) {
@@ -30,35 +32,34 @@ export default class Matrix {
     dot(m: Matrix): Matrix {
         const newMatrix = new Matrix(this.rows, m.cols)
 
-        for(let i = 0; i < this.rows; i++) {
-            for(let j = 0; j < this.cols; j++) {
-                let sum = 0;
-                for (let k = 0; k < this.cols; k++) {
-                    sum += this.matrix[i][k] as number * (m.matrix[k][j] as number)
+        if(this.cols === m.rows) {
+            for(let i = 0; i < this.rows; i++) {
+                for(let j = 0; j < m.cols; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < this.cols; k++) {
+                        sum += this.matrix[i][k] * (m.matrix[k][j])
+                    }
+                    newMatrix.matrix[i][j] = sum
                 }
-
-                newMatrix.matrix[i][j] = sum
             }
         }
-
         return newMatrix
     }
 
     randomize() {
         for (let i = 0; i < this.rows; i++) {
-            for (let j = 0; j < this.rows; j++) {
+            for (let j = 0; j < this.cols; j++) {
                 (this.matrix as Grid)[i][j] = Math.random() * 2 - 1
             }
         }
     }
 
-    singleColumnMatrixFromArray(arr: number[]) {
+    static singleColumnMatrixFromArray(arr: number[]) {
         const m = new Matrix(arr.length, 1)
-
-        for(let i = 0; i < arr.length; i++) {
-            m.matrix[i][0] = arr[i];
-        }
-
+        m.matrix = []
+        arr.forEach((num) => {
+            m.matrix.push([num]);
+        })
         return m 
     }
 
@@ -75,11 +76,13 @@ export default class Matrix {
     }
 
     addBias(): Matrix {
-        const m = new Matrix(this.rows + 1, 1)
+        const m = new Matrix(this.rows + 1, 1, [])
+
         for(let i = 0; i < this.rows; i++) {
-            m.matrix[i][0] = this.matrix[i][0]
+            m.matrix.push([this.matrix[i][0]]) 
         }
-        m.matrix[this.rows][0] = 1  
+        // bias = 1
+        m.matrix.push([1])  
         return m as Matrix
     }
 

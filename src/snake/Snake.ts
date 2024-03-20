@@ -53,7 +53,7 @@ export default class Snake {
 
         this.vision = new Array(24)
         this.decision = new Array(4)
-        this.foodList = []
+        this.foodList = [this.food.clone()]
         this.brain = new NeuralNet(24, options.nn.hiddenNodes, 4, layers)
 
         this.body.push(new PVector(420, 420 + options.size))
@@ -71,6 +71,7 @@ export default class Snake {
         return false 
     }
     foodCollide(x: number, y: number) {
+        if(this.food === undefined) console.log("UNDEFINED FOOD")
         if(x === this.food.pos.x && y == this.food.pos.y) {
             return true
         }
@@ -91,6 +92,7 @@ export default class Snake {
         // draw food
         this.food.draw(ctx)
 
+        
         ctx.strokeStyle = "white"
         // draw the snake
         this.body.forEach(p => {
@@ -119,6 +121,7 @@ export default class Snake {
     }
 
     eat() {
+        console.log('eat')
         let len = this.body.length - 1
         this.score++
         
@@ -179,45 +182,61 @@ export default class Snake {
         } 
     }
 
+    // look in all 8 directions and check for food, body, and wall
     look() {
         const size = this.options.size
         this.vision = new Array(24)
+        // look left
         let temp = this.lookInDirection(new PVector(-size, 0))
         this.vision[0] = temp[0];
         this.vision[1] = temp[1];
         this.vision[2] = temp[2];
+        // look top left
         temp = this.lookInDirection(new PVector(-size,-size));
         this.vision[3] = temp[0];
         this.vision[4] = temp[1];
         this.vision[5] = temp[2];
+        // look top
         temp = this.lookInDirection(new PVector(0,-size));
         this.vision[6] = temp[0];
         this.vision[7] = temp[1];
         this.vision[8] = temp[2];
+        // look top right
         temp = this.lookInDirection(new PVector(size,-size));
         this.vision[9] = temp[0];
         this.vision[10] = temp[1];
         this.vision[11] = temp[2];
+        // look right
         temp = this.lookInDirection(new PVector(size,0));
         this.vision[12] = temp[0];
         this.vision[13] = temp[1];
         this.vision[14] = temp[2];
+        // look bottom right
         temp = this.lookInDirection(new PVector(size,size));
         this.vision[15] = temp[0];
         this.vision[16] = temp[1];
         this.vision[17] = temp[2];
+        // look bottom
         temp = this.lookInDirection(new PVector(0,size));
         this.vision[18] = temp[0];
         this.vision[19] = temp[1];
         this.vision[20] = temp[2];
+        // look bottom left
         temp = this.lookInDirection(new PVector(-size,size));
         this.vision[21] = temp[0];
         this.vision[22] = temp[1];
         this.vision[23] = temp[2];
     }
 
+    /**
+     * Look to the cell 
+     * @param direction Delta of the directions from the head
+     * @returns Tuple which contains [foodFound, bodyFound, isCloseToTheWall] 
+     * 
+     * The closer the head to the wall, isCloseToTheWall is closer to 0
+     */
     lookInDirection(direction: PVector) {
-        const look = []
+        const look = [0,0,0]
         const pos = new PVector(this.head.x, this.head.y)
         let distance = 0
 
@@ -292,13 +311,19 @@ export default class Snake {
         }
     }
     clone() {
-        const clone = new Snake(globalThis.hiddenLayers)
+        const clone = new Snake(globalThis.hiddenLayers, this.options)
         clone.brain = this.brain.clone()
         return clone
     }
     cloneForReplay() {
-        const clone = new Snake(globalThis.hiddenLayers)
+        console.log('cloneForReplay')
+        const clone = new Snake(globalThis.hiddenLayers, this.options)
         clone.brain = this.brain.clone()
+        clone.foodList = []
+        
+        this.foodList.forEach(food => {
+            clone.foodList.push(food.clone())
+        })
         return clone
     }
 }
