@@ -139,8 +139,18 @@ export default class Snake {
             this.body.push(new PVector(this.head.x, this.head.y))
         }
 
-        this.food = this.foodList[this.foodIterate]
-        this.foodIterate++
+        if(!this.replay) {
+            // npc snake
+            this.food = new Food(this.options.size, this.food.options)
+            while(this.bodyCollide(this.food.pos.x, this.food.pos.y)) {
+                // get another random food if the randomized position is hitting the body
+                this.food = new Food(this.options.size, this.food.options)
+            }
+            this.foodList.push(this.food)
+        } else {
+            this.food = this.foodList[this.foodIterate]
+            this.foodIterate++
+        }
     }
 
     shiftBody() {
@@ -163,7 +173,8 @@ export default class Snake {
     }
 
     crossover(parent: Snake) {  //crossover the snake with another snake
-        const child = new Snake(2);
+        console.log('crossover')
+        const child = new Snake(hiddenLayers,  this.options);
         child.brain = this.brain.crossover(parent.brain);
         return child;
     }

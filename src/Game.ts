@@ -102,7 +102,7 @@ export default class Game {
 
         if(replayBest) {
             this.bestSnake.draw(this.ctx)
-            this.bestSnake.brain.draw(this.ctxG, this.bestSnake.decision)
+            this.bestSnake.brain.draw(this.ctxG, this.bestSnake.decision, this.bestSnake.vision)
         } else {
             this.snakes.forEach(snake => {
                 snake.draw(this.ctx)

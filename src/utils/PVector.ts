@@ -16,5 +16,9 @@ export default class PVector {
         this.x += v.x
         this.y += v.y
     }
+
+    clone() {
+        return new PVector(this.x, this.y)
+    }
     
 }

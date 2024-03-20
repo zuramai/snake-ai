@@ -53,16 +53,15 @@ export default class NeuralNet {
         return output.toArray()
     }
 
-    draw(ctx: CanvasRenderingContext2D, decision: number[]) {
+    draw(ctx: CanvasRenderingContext2D, decision: number[], vision: number[]) {
         const arcSize = 15
         const marginY = 25
-
         // Draw input layer nodes
         for (let i = 0; i < this.iNodes; i++) {
             ctx.beginPath();
             ctx.arc(arcSize, (arcSize) * i + (marginY * i) + 100, arcSize, 0, Math.PI * 2)
-            ctx.fillStyle = decision[i] > 0.0 ? 'green' : "white"
-            ctx.strokeStyle = decision[i] != 0 ? 'black' : "white"
+            ctx.fillStyle = vision[i] > 0.0 ? 'green' : "white"
+            ctx.strokeStyle = vision[i] != 0 ? 'black' : "white"
             ctx.stroke()
             ctx.fill()
             ctx.closePath()
@@ -83,6 +82,14 @@ export default class NeuralNet {
         }
 
         // Draw output layers nodes
+        let max = 0
+        let maxIndex = 0
+        decision.forEach((d,i) => {
+            if(d > max) {
+                maxIndex = i
+                max = d
+            }
+        })
         const outputLabels = ['Up', 'Down', 'Left', 'Right']
         for (let i = 0; i < this.oNodes; i++) {
             const x = gapHorizontal * (this.hLayers + 1)
@@ -90,8 +97,8 @@ export default class NeuralNet {
             ctx.beginPath();
             ctx.arc(x - arcSize, y + arcSize, arcSize, 0, Math.PI * 2)
             ctx.font = "16px Arial"
+            ctx.fillStyle = maxIndex === i ? "green" : "white" 
             ctx.fillText(outputLabels[i], x, y)
-            ctx.fillStyle = "white"
             ctx.strokeStyle = "black"
             ctx.stroke()
             ctx.fill()
