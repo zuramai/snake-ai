@@ -197,10 +197,10 @@ export default class Snake {
 
     calculateFitness() {
         if(this.score < 10) {
-            this.fitness = Math.floor(this.lifetime * this.lifetime) * Math.pow(this.score, 2)
+            this.fitness = Math.floor(this.lifetime * this.lifetime) * Math.pow(2, this.score)
         } else {
             this.fitness = Math.floor(this.lifetime * this.lifetime)
-            this.fitness *= Math.pow(10, 2)
+            this.fitness *= Math.pow(2, 10)
             this.fitness *= this.score - 9
         } 
     }
@@ -284,14 +284,11 @@ export default class Snake {
             pos.addVector(direction)
             distance++
         }
-        let arcSize = 3
         if(this.replay) {
             if(foodFound) {
                 ctx.fillStyle = "gold"
-                arcSize = 5
             }else{
                 ctx.fillStyle = "gray"
-                arcSize = 3
             }
             dots.forEach(dot => {
                 ctx.beginPath()

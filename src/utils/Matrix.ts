@@ -136,13 +136,13 @@ export default class Matrix {
             for(let j = 0; j < this.cols; j++) {
                 const rand = randomNumberBetween(0, 1)
                 if(rand < mutationRate) {
-                    (this.matrix[i][j] as number) += randomGaussian(0,0)/5
+                    (this.matrix[i][j] as number) += randomGaussian(0,1)/5
 
-                    if ((this.matrix[i][j] as number) > 1) {
-                        (this.matrix[i][j] as number) = 1
+                    if (this.matrix[i][j]  > 1) {
+                        this.matrix[i][j] = 1
                     }
-                    if ((this.matrix[i][j] as number) < -1) {
-                        (this.matrix[i][j] as number) = -1
+                    if (this.matrix[i][j] < -1) {
+                        this.matrix[i][j] = -1
                     }
                 }
             }

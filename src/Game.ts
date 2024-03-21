@@ -7,18 +7,13 @@ const blockSize = 30
 const hiddenNodes = 16
 const hiddenLayers = 2
 
-let highscore = 0
 globalThis.hiddenLayers = hiddenLayers
-let defaultMutation = globalThis.mutationRate
 
-const humanPlaying = false
 const replayBest = true 
-const seeVision = false 
-const modelLoaded = false 
 
-const evolution = []
+const evolution: number[] = []
 
-const fps = 15
+const fps = 30
 let interval = 1000 / fps
 let now = performance.now()
 let elapsed 
@@ -124,7 +119,6 @@ export default class Game {
         if(elapsed > interval) {
             this.drawGraph()
             if(this.isDone()) {
-                highscore = this.bestSnake.score
                 this.calculateFitness()
                 this.naturalSelection()
             }else{
@@ -180,14 +174,16 @@ export default class Game {
         this.calculateFitnessSum()
         // add the best snake of the prior generation
         newSnakes[0] = this.bestSnake.clone() 
+        console.log(this.fitnessSum)
 
         for(let i = 1; i < this.snakes.length; i++) {
             const child = this.selectParent().crossover(this.selectParent())
             child.mutate()
-            newSnakes[i] = child.clone()
+            newSnakes[i] = child
         }
         this.snakes = newSnakes
         evolution.push(this.bestSnakeScore)
+        console.log(evolution)
         this.gen++
     }
     setBestSnake() {
