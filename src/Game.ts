@@ -129,9 +129,10 @@ export default class Game {
         this.ctxG.textBaseline = "top"
         this.ctxG.fillStyle = "white"
         this.ctxG.font = "32px Arial"
-        this.ctxG.fillText("Gen: "+ this.gen, 0, 0)
-        this.ctxG.fillText("Mutation Rate: "+ globalThis.mutationRate + '%', 0, 50)
+        this.ctxG.fillText("Gen: "+ this.gen, 200, 0)
+        this.ctxG.fillText("Mutation Rate: "+ globalThis.mutationRate + '%', 400, 100)
         this.ctxG.fillText("Score: "+ this.bestSnake.score, 400, 50)
+        this.ctxG.fillText("Lives: "+ this.bestSnake.life, 400, 200)
         this.ctxG.fillText("High Score: "+ highscore, 400, 0)
     }
 
