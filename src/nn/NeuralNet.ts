@@ -64,7 +64,7 @@ export default class NeuralNet {
             const y =  (arcSize) * i + (marginY * i) + 50
             ctx.beginPath();
             ctx.arc(x, y, arcSize, 0, Math.PI * 2)
-            ctx.fillStyle = vision[i] > 0.0 ? 'green' : "white"
+            ctx.fillStyle = vision[i] > 0.0 ? '#25fa77' : "white"
             ctx.strokeStyle = vision[i] != 0 ? 'black' : "white"
             ctx.stroke()
             ctx.fill()
@@ -114,7 +114,7 @@ export default class NeuralNet {
             ctx.beginPath();
             ctx.arc(x, y , arcSize, 0, Math.PI * 2)
             ctx.font = "16px Arial"
-            ctx.fillStyle = maxIndex === i ? "green" : "white" 
+            ctx.fillStyle = maxIndex === i ? "#25fa77" : "white" 
             ctx.fillText(outputLabels[i], x + arcSize, y )
             ctx.strokeStyle = "black"
             ctx.stroke()
@@ -134,7 +134,7 @@ export default class NeuralNet {
             for(let j = 0; j < layer1.x.length; j++) {
                 for(let k = 0; k < layer2.x.length; k++) {
                     ctx.beginPath()
-                    ctx.strokeStyle = k % 2 ? '#fc6084' : '#6068fc'
+                    ctx.strokeStyle = k % 2 === 1 ? '#fc6084' : '#6068fc'
                     ctx.lineWidth = 0.8
                     ctx.moveTo(layer1.x[j] + arcSize, layer1.y[j])
                     ctx.lineTo(layer2.x[k] - arcSize, layer2.y[k])

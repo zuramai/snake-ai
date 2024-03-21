@@ -27,7 +27,7 @@ export class Food {
     }
 
     clone() {
-        const food = new Food(this.size)
+        const food = new Food(this.size, this.options)
         food.pos.x = this.pos.x
         food.pos.y = this.pos.y
         return food

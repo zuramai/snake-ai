@@ -18,7 +18,7 @@ const defaultOptions = {
 }
 
 export default class Snake {
-    score = 1
+    score = 0
     life = 200 
     lifetime = 0 // amount if time the snake has been alive
     xVel: number = 0
@@ -58,7 +58,6 @@ export default class Snake {
 
         this.body.push(new PVector(420, 420 + options.size))
         this.body.push(new PVector(420, 420 + options.size * 2))
-        this.score += 2;
         this.options = options
     }
 
@@ -115,10 +114,18 @@ export default class Snake {
             this.eat()
         }
         this.shiftBody()
-        if(this.wallCollide(this.head.x, this.head.y) || 
-            this.bodyCollide(this.head.x, this.head.y) || 
-            this.life <= 0) {
+        if(this.bodyCollide(this.head.x, this.head.y)) {
             this.dead = true
+            if(this.replay){
+                console.log('dead body collide')
+            }
+        }
+        if(this.wallCollide(this.head.x, this.head.y)  || 
+        this.life <= 0) {
+            this.dead = true
+            if(this.replay){
+                console.log('dead wall collide')
+            }
         } 
     }
 
@@ -261,6 +268,8 @@ export default class Snake {
             if(!foodFound && this.foodCollide(pos.x, pos.y)) {
                 foodFound = true 
                 look[0] = 1
+                if(this.replay) {
+                }
             }
             if(!bodyFound && this.bodyCollide(pos.x, pos.y)) {
                 bodyFound = true 
@@ -331,6 +340,7 @@ export default class Snake {
         const clone = new Snake(globalThis.hiddenLayers, this.options)
         clone.brain = this.brain.clone()
         clone.foodList = []
+        clone.replay = true
         
         this.foodList.forEach(food => {
             clone.foodList.push(food.clone())

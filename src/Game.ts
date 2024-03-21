@@ -5,9 +5,8 @@ import { createElement } from "./utils/dom";
 const blockSize = 30
 const hiddenNodes = 16
 const hiddenLayers = 2
-const fps = 50
 
-const highscore = 0
+let highscore = 0
 globalThis.hiddenLayers = hiddenLayers
 let defaultMutation = globalThis.mutationRate
 
@@ -17,6 +16,12 @@ const seeVision = false
 const modelLoaded = false 
 
 const evolution = []
+
+const fps = 30
+let interval = 1000 / fps
+let now = performance.now()
+let elapsed 
+let then = performance.now()
 
 export default class Game {
     snakes: Snake[] = []
@@ -101,7 +106,6 @@ export default class Game {
         }
 
         if(replayBest) {
-            console.log(this.bestSnake.body.length)
             this.bestSnake.draw(this.ctx)
             this.bestSnake.brain.draw(this.ctxG, this.bestSnake.decision, this.bestSnake.vision)
         } else {
@@ -112,14 +116,20 @@ export default class Game {
     }
 
     render() {
-        this.drawGraph()
-        if(this.isDone()) {
-            console.log('done')
-            this.calculateFitness()
-            this.naturalSelection()
-        }else{
-            this.draw()
-            this.update()
+        now = performance.now()
+
+        elapsed = now - then 
+        if(elapsed > interval) {
+            this.drawGraph()
+            if(this.isDone()) {
+                highscore = this.bestSnake.score
+                this.calculateFitness()
+                this.naturalSelection()
+            }else{
+                this.draw()
+                this.update()
+            }
+            then = performance.now()
         }
         requestAnimationFrame(() => this.render())
     }
