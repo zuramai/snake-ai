@@ -1,0 +1,26 @@
+name: Build and deploy playground
+on:
+  push:
+    branches: [ main ]
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v2
+      
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 8.6.11
+          run_install: true
+      
+      - name: Install and Build 🔧 
+        run: |
+          pnpm run build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: ./dist # The folder the action should deploy.
