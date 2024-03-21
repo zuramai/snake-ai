@@ -93,10 +93,15 @@ export default class Snake {
 
         
         ctx.strokeStyle = "white"
+        ctx.fillStyle = this.options.snake.color
+        ctx.beginPath()
+        ctx.rect(this.head.x, this.head.y, this.options.size, this.options.size)
+        ctx.fill()
+        ctx.stroke()
+        ctx.closePath()
         // draw the snake
         this.body.forEach(p => {
             ctx.beginPath()
-            ctx.fillStyle = this.options.snake.color
             ctx.rect(p.x, p.y, this.options.size, this.options.size)
             ctx.lineWidth = 1
             ctx.fill()
@@ -201,46 +206,46 @@ export default class Snake {
     }
 
     // look in all 8 directions and check for food, body, and wall
-    look() {
+    look(ctx: CanvasRenderingContext2D) {
         const size = this.options.size
         this.vision = new Array(24)
         // look left
-        let temp = this.lookInDirection(new PVector(-size, 0))
+        let temp = this.lookInDirection(new PVector(-size, 0), ctx)
         this.vision[0] = temp[0];
         this.vision[1] = temp[1];
         this.vision[2] = temp[2];
         // look top left
-        temp = this.lookInDirection(new PVector(-size,-size));
+        temp = this.lookInDirection(new PVector(-size,-size), ctx);
         this.vision[3] = temp[0];
         this.vision[4] = temp[1];
         this.vision[5] = temp[2];
         // look top
-        temp = this.lookInDirection(new PVector(0,-size));
+        temp = this.lookInDirection(new PVector(0,-size), ctx);
         this.vision[6] = temp[0];
         this.vision[7] = temp[1];
         this.vision[8] = temp[2];
         // look top right
-        temp = this.lookInDirection(new PVector(size,-size));
+        temp = this.lookInDirection(new PVector(size,-size), ctx);
         this.vision[9] = temp[0];
         this.vision[10] = temp[1];
         this.vision[11] = temp[2];
         // look right
-        temp = this.lookInDirection(new PVector(size,0));
+        temp = this.lookInDirection(new PVector(size,0), ctx);
         this.vision[12] = temp[0];
         this.vision[13] = temp[1];
         this.vision[14] = temp[2];
         // look bottom right
-        temp = this.lookInDirection(new PVector(size,size));
+        temp = this.lookInDirection(new PVector(size,size), ctx);
         this.vision[15] = temp[0];
         this.vision[16] = temp[1];
         this.vision[17] = temp[2];
         // look bottom
-        temp = this.lookInDirection(new PVector(0,size));
+        temp = this.lookInDirection(new PVector(0,size), ctx);
         this.vision[18] = temp[0];
         this.vision[19] = temp[1];
         this.vision[20] = temp[2];
         // look bottom left
-        temp = this.lookInDirection(new PVector(-size,size));
+        temp = this.lookInDirection(new PVector(-size,size), ctx);
         this.vision[21] = temp[0];
         this.vision[22] = temp[1];
         this.vision[23] = temp[2];
@@ -253,7 +258,7 @@ export default class Snake {
      * 
      * The closer the head to the wall, isCloseToTheWall is closer to 0
      */
-    lookInDirection(direction: PVector) {
+    lookInDirection(direction: PVector, ctx: CanvasRenderingContext2D) {
         const look = [0,0,0]
         const pos = new PVector(this.head.x, this.head.y)
         let distance = 0
@@ -263,20 +268,37 @@ export default class Snake {
 
         pos.addVector(direction)
         distance++
-
+        const dots = []
         while(!this.wallCollide(pos.x, pos.y)) {
+            dots.push([pos.x, pos.y])
             if(!foodFound && this.foodCollide(pos.x, pos.y)) {
                 foodFound = true 
                 look[0] = 1
-                if(this.replay) {
-                }
+                ctx.fill()
             }
             if(!bodyFound && this.bodyCollide(pos.x, pos.y)) {
                 bodyFound = true 
                 look[1] = 1
             }
+
             pos.addVector(direction)
             distance++
+        }
+        let arcSize = 3
+        if(this.replay) {
+            if(foodFound) {
+                ctx.fillStyle = "gold"
+                arcSize = 5
+            }else{
+                ctx.fillStyle = "gray"
+                arcSize = 3
+            }
+            dots.forEach(dot => {
+                ctx.beginPath()
+                ctx.arc(dot[0] + this.options.size/2, dot[1] + this.options.size/2, 3, 0, Math.PI*2)
+                ctx.closePath()
+                ctx.fill()
+            })
         }
         look[2] = 1/distance 
         return look
@@ -336,7 +358,6 @@ export default class Snake {
         return clone
     }
     cloneForReplay() {
-        console.log('cloneForReplay')
         const clone = new Snake(globalThis.hiddenLayers, this.options)
         clone.brain = this.brain.clone()
         clone.foodList = []

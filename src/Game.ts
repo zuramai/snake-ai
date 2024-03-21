@@ -1,3 +1,4 @@
+let ctx: CanvasRenderingContext2D
 import Snake from "./snake/Snake";
 import { randomNumberBetween } from "./utils";
 import { createElement } from "./utils/dom";
@@ -17,7 +18,7 @@ const modelLoaded = false
 
 const evolution = []
 
-const fps = 30
+const fps = 15
 let interval = 1000 / fps
 let now = performance.now()
 let elapsed 
@@ -61,6 +62,7 @@ export default class Game {
         this.bestSnake.replay = true
 
         this.ctx = this.canvas.getContext('2d')!
+        ctx = this.ctx
         this.ctxG = this.graphCanvas.getContext('2d')!
     }
 
@@ -75,13 +77,13 @@ export default class Game {
 
     update() {
         if(!this.bestSnake.dead) {
-            this.bestSnake.look()
+            this.bestSnake.look(ctx)
             this.bestSnake.think()
             this.bestSnake.move()
         }
         this.snakes.forEach(snake => {
             if(!snake.dead) {
-                snake.look()
+                snake.look(ctx)
                 snake.think()
                 snake.move()
             }
@@ -143,7 +145,7 @@ export default class Game {
         this.ctxG.fillText("Mutation Rate: "+ globalThis.mutationRate + '%', 400, 100)
         this.ctxG.fillText("Score: "+ this.bestSnake.score, 400, 50)
         this.ctxG.fillText("Lives: "+ this.bestSnake.life, 400, 200)
-        this.ctxG.fillText("High Score: "+ highscore, 400, 0)
+        this.ctxG.fillText("High Score: "+ this.bestSnakeScore, 400, 0)
     }
 
     selectParent() {
@@ -166,7 +168,7 @@ export default class Game {
         this.snakes.forEach(snake => snake.calculateFitness())
     }
 
-    calculteFitnessSum() {
+    calculateFitnessSum() {
         this.fitnessSum = 0
         this.snakes.forEach(snake => this.fitnessSum += snake.fitness)
     }
@@ -175,7 +177,7 @@ export default class Game {
     naturalSelection() {
         const newSnakes = []
         this.setBestSnake()
-        this.calculteFitnessSum()
+        this.calculateFitnessSum()
         // add the best snake of the prior generation
         newSnakes[0] = this.bestSnake.clone() 
 
@@ -194,6 +196,7 @@ export default class Game {
         let maxIndex = 0
         this.snakes.forEach((snake, i) => {
             if(snake.fitness > max) {
+                console.log('best fitness', snake.fitness)
                 max = snake.fitness 
                 maxIndex = i
             }
@@ -214,12 +217,6 @@ export default class Game {
 
     }
 
-    calculateFitnessSum() {
-        this.fitnessSum = 0
-        this.snakes.forEach(snake => {
-            this.fitnessSum += snake.fitness
-        })
-    }
 
     
 }
