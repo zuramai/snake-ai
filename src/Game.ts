@@ -101,6 +101,7 @@ export default class Game {
         }
 
         if(replayBest) {
+            console.log(this.bestSnake.body.length)
             this.bestSnake.draw(this.ctx)
             this.bestSnake.brain.draw(this.ctxG, this.bestSnake.decision, this.bestSnake.vision)
         } else {

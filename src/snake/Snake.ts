@@ -79,9 +79,9 @@ export default class Snake {
     }
     
     wallCollide(x: number, y: number) {
-        if(x >= this.options.canvas.width - this.options.size ||
+        if(x >= this.options.canvas.width ||
             x < 0 || 
-            y >= this.options.canvas.height - this.options.size || 
+            y >= this.options.canvas.height || 
             y < 0) {
             return true
         }
@@ -96,11 +96,13 @@ export default class Snake {
         ctx.strokeStyle = "white"
         // draw the snake
         this.body.forEach(p => {
+            ctx.beginPath()
             ctx.fillStyle = this.options.snake.color
             ctx.rect(p.x, p.y, this.options.size, this.options.size)
             ctx.lineWidth = 1
             ctx.fill()
             ctx.stroke()
+            ctx.closePath()
         })
     }
 
@@ -121,7 +123,6 @@ export default class Snake {
     }
 
     eat() {
-        console.log('eat')
         let len = this.body.length - 1
         this.score++
         
@@ -173,7 +174,6 @@ export default class Snake {
     }
 
     crossover(parent: Snake) {  //crossover the snake with another snake
-        console.log('crossover')
         const child = new Snake(hiddenLayers,  this.options);
         child.brain = this.brain.crossover(parent.brain);
         return child;
