@@ -21,4 +21,7 @@ export default class PVector {
         return new PVector(this.x, this.y)
     }
     
+    distanceTo(v: PVector) {
+        return Math.sqrt(Math.pow(Math.abs((v.x) - (this.x)),2) + Math.pow(Math.abs((v.y) - (this.y)),2))
+    }
 }

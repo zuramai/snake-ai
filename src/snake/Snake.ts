@@ -185,7 +185,13 @@ export default class Snake {
         })
     }
 
-    crossover(parent: Snake) {  //crossover the snake with another snake
+
+    /**
+     * crossover the snake with another snake in order to produce superior snake
+     * @param parent Snake 1
+     * @returns 
+     */
+    crossover(parent: Snake) {  
         const child = new Snake(hiddenLayers,  this.options);
         child.brain = this.brain.crossover(parent.brain);
         return child;
@@ -197,7 +203,7 @@ export default class Snake {
 
     calculateFitness() {
         if(this.score < 10) {
-            this.fitness = Math.floor(this.lifetime * this.lifetime) * Math.pow(2, this.score)
+            this.fitness = Math.pow(this.lifetime, 2) * Math.pow(this.score, 3)
         } else {
             this.fitness = Math.floor(this.lifetime * this.lifetime)
             this.fitness *= Math.pow(2, 10)
@@ -249,6 +255,7 @@ export default class Snake {
         this.vision[21] = temp[0];
         this.vision[22] = temp[1];
         this.vision[23] = temp[2];
+
     }
 
     /**
@@ -297,7 +304,10 @@ export default class Snake {
                 ctx.fill()
             })
         }
+        
         look[2] = 1/distance 
+
+        
         return look
     }
 

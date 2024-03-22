@@ -13,12 +13,11 @@ const replayBest = true
 
 const evolution: number[] = []
 
-const fps = 30
+const fps = 1000
 let interval = 1000 / fps
 let now = performance.now()
 let elapsed 
 let then = performance.now()
-
 export default class Game {
     snakes: Snake[] = []
     bestSnake: Snake
@@ -66,6 +65,8 @@ export default class Game {
         if(allDead) return true 
 
         if(this.bestSnake.dead) return true
+
+        if(this.bestSnake.score > this.bestSnakeScore) this.bestSnakeScore = this.bestSnake.score
 
         return false 
     }
@@ -183,16 +184,13 @@ export default class Game {
         }
         this.snakes = newSnakes
         evolution.push(this.bestSnakeScore)
-        console.log(evolution)
         this.gen++
     }
     setBestSnake() {
-        console.log('set best snake')
         let max = 0
         let maxIndex = 0
         this.snakes.forEach((snake, i) => {
             if(snake.fitness > max) {
-                console.log('best fitness', snake.fitness)
                 max = snake.fitness 
                 maxIndex = i
             }
@@ -201,12 +199,12 @@ export default class Game {
         if(max > this.bestFitness) {
             this.bestFitness = max
             this.bestSnake = this.snakes[maxIndex].cloneForReplay()
-            this.bestSnakeScore = this.snakes[maxIndex].score 
+            // this.bestSnakeScore = this.snakes[maxIndex].score 
         } else {
             this.bestSnake = this.bestSnake.cloneForReplay()
             this.samebest++
             if(this.samebest > 2) {
-                mutationRate *= 2
+                mutationRate += 0.02
                 this.samebest = 0
             }
         }
